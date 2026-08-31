@@ -199,9 +199,12 @@ git push origin akshat-dev
 ```
 
 ## General Git Guidelines for the Team
-- **DO NOT** push directly to the `main` branch. 
+- **DO NOT** push directly to the `main` or `integration` branches. 
 - Always work on your assigned branch (`shubham-dev`, `lavanya-dev`, `akshat-dev`).
-- When your feature is complete and tested, we will create a Pull Request (PR) to merge your branch into `main`.
+- **The Integration Workflow:** 
+  1. When your feature is complete, we will merge it into the **`integration`** branch first.
+  2. The `integration` branch acts as a staging area where we test all agents together and resolve any merge conflicts.
+  3. Once everything is working perfectly on `integration`, we will create a Pull Request to merge `integration` into `main` (production).
 - If you need code from someone else's branch, ask them to push it, and then you can merge their branch into yours locally using `git merge origin/<their-branch-name>`.
 
 ---

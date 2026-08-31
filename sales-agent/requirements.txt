@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+python-dotenv
+alembic
+beautifulsoup4
+aiohttp
+httpx
+playwright
+google-genai
+groq
+PyPDF2
+python-multipart

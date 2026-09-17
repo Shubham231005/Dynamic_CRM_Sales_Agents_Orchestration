@@ -52,7 +52,7 @@ async def test_research_orchestrator_execution(db_session, monkeypatch):
     db_session.commit()
     
     # Mock researchers
-    async def mock_website_research(url):
+    async def mock_website_research(self, url):
         return {
             "description": "We are a supermarket",
             "emails": ["contact@bonbon.com"],

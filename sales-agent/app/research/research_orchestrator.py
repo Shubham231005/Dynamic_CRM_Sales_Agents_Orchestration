@@ -60,14 +60,18 @@ class ResearchOrchestrator:
             
         # 1. Caching check
         if lead.profile and not force_refresh:
-            if lead.profile.updated_at and lead.profile.updated_at > datetime.now(timezone.utc) - timedelta(hours=24):
-                return {
-                    "success": True,
-                    "lead_id": lead.id,
-                    "profile_status": lead.profile.profile_status,
-                    "profile_completeness": lead.profile.profile_completeness,
-                    "company_profile": lead.profile
-                }
+            profile_time = lead.profile.updated_at or lead.profile.created_at
+            if profile_time:
+                if profile_time.tzinfo is None:
+                    profile_time = profile_time.replace(tzinfo=timezone.utc)
+                if profile_time > datetime.now(timezone.utc) - timedelta(hours=24):
+                    return {
+                        "success": True,
+                        "lead_id": lead.id,
+                        "profile_status": lead.profile.profile_status,
+                        "profile_completeness": lead.profile.profile_completeness,
+                        "company_profile": lead.profile
+                    }
                 
         new_evidence_list = []
         status = "NOT_STARTED"

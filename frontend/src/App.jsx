@@ -66,19 +66,24 @@ function App() {
     e.preventDefault();
     setLoading(true);
     try {
-      // Calling the existing lead generation API (from Integration 1)
+      const searchIndustry = industry.trim() || 'Dental Clinics';
+      const searchLocation = location.trim() || 'Mumbai';
+      
       const res = await fetch(`http://${window.location.hostname}:8000/api/leads/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ industry: industry, location: location, max_results: 30, provider: 'google_maps' })
+        body: JSON.stringify({ industry: searchIndustry, location: searchLocation, max_results: 10, provider: 'google_maps' })
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.total_found > 0) {
         alert(`Agents found ${data.total_found} leads!`);
+        setActiveTab('leads');
+      } else {
+        alert(`No new leads found (found ${data.total_found || 0} total, ${data.duplicates || 0} duplicates).`);
         setActiveTab('leads');
       }
     } catch (e) {
-      alert("Error finding leads");
+      alert("Error finding leads: " + e.message);
     }
     setLoading(false);
   };

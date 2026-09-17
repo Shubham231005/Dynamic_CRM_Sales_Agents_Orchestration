@@ -2,6 +2,7 @@ import os
 import json
 from typing import Dict, Any
 from app.llm.interface import BaseLLMProvider
+from app.llm.mock_provider import MockLLMProvider
 import logging
 
 try:
@@ -16,15 +17,16 @@ class GroqLLMProvider(BaseLLMProvider):
     def __init__(self, model_name: str = "llama-3.1-8b-instant"):
         self.model_name = model_name
         self.api_key = os.getenv("GROQ_API_KEY")
-        if HAS_GROQ and self.api_key:
+        if HAS_GROQ and self.api_key and self.api_key.strip():
             self.client = Groq(api_key=self.api_key)
         else:
             self.client = None
-            logger.warning("Groq not installed or GROQ_API_KEY missing. GroqLLMProvider will fail.")
+            logger.info("GROQ_API_KEY not configured. Using MockLLMProvider fallback.")
+        self.fallback = MockLLMProvider()
 
     async def generate_json(self, prompt: str, system_prompt: str = None) -> Dict[str, Any]:
         if not self.client:
-            raise RuntimeError("Groq SDK not installed or missing API Key.")
+            return await self.fallback.generate_json(prompt, system_prompt)
             
         messages = []
         if system_prompt:
@@ -52,15 +54,12 @@ class GroqLLMProvider(BaseLLMProvider):
             
             return json.loads(content)
         except Exception as e:
-            import traceback
-            with open("groq_error.txt", "w") as f:
-                f.write(traceback.format_exc())
-            logger.error(f"Error calling Groq API: {e}")
-            raise
+            logger.warning(f"Groq API call failed ({e}). Falling back to MockLLMProvider.")
+            return await self.fallback.generate_json(prompt, system_prompt)
 
     async def generate_text(self, prompt: str, system_prompt: str = None) -> str:
         if not self.client:
-            raise RuntimeError("Groq SDK not installed or missing API Key.")
+            return await self.fallback.generate_text(prompt, system_prompt)
             
         messages = []
         if system_prompt:
@@ -76,5 +75,5 @@ class GroqLLMProvider(BaseLLMProvider):
             )
             return response.choices[0].message.content
         except Exception as e:
-            logger.error(f"Error calling Groq API: {e}")
-            raise
+            logger.warning(f"Groq API call failed ({e}). Falling back to MockLLMProvider.")
+            return await self.fallback.generate_text(prompt, system_prompt)

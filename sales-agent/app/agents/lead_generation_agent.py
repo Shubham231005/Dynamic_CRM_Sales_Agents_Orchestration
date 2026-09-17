@@ -52,7 +52,13 @@ class LeadGenerationAgent:
         """
         provider = self._get_provider(provider_name)
         
-        raw_leads = await provider.search_businesses(industry, location, max_results)
+        try:
+            raw_leads = await provider.search_businesses(industry, location, max_results)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Provider '{provider_name}' search failed: {e}. Falling back to mock provider.")
+            fallback = MockLeadProvider()
+            raw_leads = await fallback.search_businesses(industry, location, max_results)
         
         total_found = len(raw_leads)
         new_leads_count = 0

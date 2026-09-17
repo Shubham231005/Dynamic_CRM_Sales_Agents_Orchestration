@@ -60,6 +60,7 @@ class Evidence(Base):
     source_type = Column(String, nullable=False) # e.g. official_website, web_search, business_directory
     confidence = Column(Float, nullable=False)
     confidence_reasons = Column(JSON, nullable=True) # list of reasons
+    classification = Column(String, nullable=True) # e.g. OFFICIAL_WEBSITE, WHATSAPP_LINK
     
     discovered_at = Column(DateTime(timezone=True), server_default=func.now())
     

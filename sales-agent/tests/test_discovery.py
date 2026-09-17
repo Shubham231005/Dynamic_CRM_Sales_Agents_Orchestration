@@ -27,7 +27,7 @@ def test_source_verifier():
     verified = verifier.verify(candidate, lead)
     
     assert verified["confidence"] > 0.60
-    assert "company_name_match" in verified["confidence_reasons"]
+    assert "exact_name_match" in verified["confidence_reasons"]
     assert "location_match" in verified["confidence_reasons"]
     assert "phone_match" in verified["confidence_reasons"]
     assert verified["classification"] == "OFFICIAL_WEBSITE"

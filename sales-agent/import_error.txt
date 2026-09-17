@@ -1,12 +1,12 @@
 Traceback (most recent call last):
-  File "C:\Users\Shubham\Desktop\MultiAgent\sales-agent\run.py", line 13, in <module>
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\sales-agent\run.py", line 13, in <module>
     import app.main
-  File "C:\Users\Shubham\Desktop\MultiAgent\sales-agent\app\main.py", line 6, in <module>
-    from app.api.routes import leads, strategy
-  File "C:\Users\Shubham\Desktop\MultiAgent\sales-agent\app\api\routes\leads.py", line 7, in <module>
-    from app.agents.lead_generation_agent import LeadGenerationAgent
-  File "C:\Users\Shubham\Desktop\MultiAgent\sales-agent\app\agents\lead_generation_agent.py", line 4, in <module>
-    from app.providers.google_maps_provider import GoogleMapsProvider
-  File "C:\Users\Shubham\Desktop\MultiAgent\sales-agent\app\providers\google_maps_provider.py", line 3, in <module>
-    from playwright.sync_api import sync_playwright
-ModuleNotFoundError: No module named 'playwright'
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\sales-agent\app\main.py", line 6, in <module>
+    from app.api.routes import leads, strategy, settings, outreach
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\sales-agent\app\api\routes\strategy.py", line 12, in <module>
+    from app.orchestrators.sales_orchestrator import SalesOrchestrator
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\sales-agent\app\orchestrators\__init__.py", line 1, in <module>
+    from .sales_orchestrator import SalesOrchestrator
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\sales-agent\app\orchestrators\sales_orchestrator.py", line 4, in <module>
+    from app.agents.lead_scoring_agent import LeadScoringAgent
+ImportError: cannot import name 'LeadScoringAgent' from 'app.agents.lead_scoring_agent' (C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\sales-agent\app\agents\lead_scoring_agent.py)

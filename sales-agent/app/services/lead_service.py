@@ -112,3 +112,38 @@ class LeadService:
             models.Lead.status == "NEW",
             models.Lead.enrichment_status.in_(["NOT_STARTED", "FAILED"])
         ).limit(limit).all()
+
+    def update_lead_status(self, lead_id: int, new_status: str) -> models.Lead | None:
+        """Updates lead state cleanly with transaction commit."""
+        db_lead = self.get_lead(lead_id)
+        if not db_lead:
+            return None
+        db_lead.status = new_status
+        self.db.commit()
+        self.db.refresh(db_lead)
+        return db_lead
+
+    def get_leads_by_status(self, status: str, limit: int = 100) -> List[models.Lead]:
+        """Fetches leads matching a specific pipeline status."""
+        return self.db.query(models.Lead).filter(models.Lead.status == status).order_by(models.Lead.id.desc()).limit(limit).all()
+
+    def get_pipeline_stage_counts(self) -> dict:
+        """Aggregates total count of leads at each stage of the sales pipeline."""
+        from sqlalchemy import func
+        results = self.db.query(models.Lead.status, func.count(models.Lead.id)).group_by(models.Lead.status).all()
+        counts = {
+            "NEW": 0,
+            "RESEARCHING": 0,
+            "RESEARCHED": 0,
+            "SCORED": 0,
+            "APPROVAL_PENDING": 0,
+            "OUTREACH_QUEUED": 0,
+            "OUTREACH_COMPLETED": 0,
+            "OUTREACH_FAILED": 0
+        }
+        for status, count in results:
+            if status:
+                counts[status] = count
+        counts["TOTAL"] = sum(counts.values())
+        return counts
+

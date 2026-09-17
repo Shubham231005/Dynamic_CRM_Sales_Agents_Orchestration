@@ -98,6 +98,13 @@ class CompanyProfile(Base):
     team_members = Column(JSON, nullable=True)
     additional_locations = Column(JSON, nullable=True)
     
+    # Financial Metrics (Dynamic Financial Health Reasoning)
+    annual_revenue = Column(Float, nullable=True)
+    profit_margin_pct = Column(Float, nullable=True)
+    debt_to_equity_ratio = Column(Float, nullable=True)
+    revenue_growth_yoy = Column(Float, nullable=True)
+    financial_health_score = Column(Float, nullable=True)
+    
     profile_completeness = Column(Integer, default=0)
     profile_status = Column(String, default="NOT_STARTED", index=True)
     
@@ -105,6 +112,19 @@ class CompanyProfile(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     lead = relationship("Lead", back_populates="profile")
+
+class BenchmarkResult(Base):
+    __tablename__ = "benchmark_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False)
+    
+    baseline_metrics = Column(JSON, nullable=False) # e.g. static score, hallucination_rate, latency_ms
+    multi_agent_metrics = Column(JSON, nullable=False) # e.g. dynamic score, critic confidence, latency_ms, mcp_events
+    comparison_summary = Column(JSON, nullable=False) # delta analysis
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
 
 class IndustryPlaybook(Base):
     __tablename__ = "industry_playbooks"

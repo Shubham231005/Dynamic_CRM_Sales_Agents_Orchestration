@@ -12,6 +12,9 @@ from app.schemas.integration2 import (
 from app.orchestrators.sales_orchestrator import SalesOrchestrator
 from app.agents.industry_agent import IndustryAgent
 from app.agents.lead_scoring_agent import LeadScoringAgent
+from app.agents.critic_validation_agent import CriticValidationAgent
+from app.orchestrators.benchmark_engine import BenchmarkEngine
+from app.orchestrators.mcp_event_bus import mcp_event_bus
 from pydantic import BaseModel
 from fastapi import UploadFile, File
 import io
@@ -43,7 +46,7 @@ def get_playbooks(db: Session = Depends(get_db)):
 @router.post("/leads/{lead_id}/score")
 async def score_lead(lead_id: int, request: StrategizeRequest, db: Session = Depends(get_db)):
     """
-    Explicitly runs the Lead Scoring Agent for a lead.
+    Explicitly runs the Lead Scoring Agent with financial ratio analysis and Critic weighting.
     """
     scoring_agent = LeadScoringAgent(db)
     try:
@@ -53,6 +56,41 @@ async def score_lead(lead_id: int, request: StrategizeRequest, db: Session = Dep
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/critic/validate/{lead_id}")
+async def validate_critic_loop(lead_id: int, db: Session = Depends(get_db)):
+    """
+    Executes the Reflexive Critic Validation Loop to detect and eliminate hallucinations.
+    """
+    critic = CriticValidationAgent(db)
+    try:
+        res = await critic.validate_lead_profile(lead_id)
+        return res
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@router.post("/benchmark/{lead_id}")
+async def run_benchmark(lead_id: int, request: StrategizeRequest, db: Session = Depends(get_db)):
+    """
+    Runs Empirical Study Benchmark comparing Baseline (Traditional) vs Multi-Agent Architecture.
+    """
+    engine = BenchmarkEngine(db)
+    try:
+        res = await engine.run_comparative_benchmark(lead_id, sales_context=request.sales_context)
+        return res
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@router.get("/mcp/events")
+def get_mcp_events():
+    """
+    Returns live log of Model Context Protocol (MCP) JSON-RPC event dispatches.
+    """
+    return {
+        "success": True,
+        "mcp_event_bus": "active",
+        "events": mcp_event_bus.get_event_log(limit=50)
+    }
 
 @router.post("/leads/{lead_id}/strategize", response_model=StrategicFitResponse)
 async def strategize_lead(lead_id: int, request: StrategizeRequest, db: Session = Depends(get_db)):

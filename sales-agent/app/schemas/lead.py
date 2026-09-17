@@ -9,6 +9,7 @@ class EvidenceBase(BaseModel):
     source_type: str
     confidence: float
     confidence_reasons: Optional[List[str]] = None
+    classification: Optional[str] = None
 
 class EvidenceResponse(EvidenceBase):
     id: int

@@ -1,208 +1,246 @@
-# Intelligent Multi-Agent AI Sales Automation System
+# 🤖 Dynamic CRM Sales Agents Orchestration
 
-## Project Overview
-The Intelligent Multi-Agent AI Sales Automation System aims to automate the end-to-end B2B sales pipeline, from lead generation and scoring to outreach and follow-up. 
-
-**Current Scope: Integration 1 (MVP)**
-This first integration focuses strictly on the foundational Lead Generation pipeline. It allows fetching leads from a provider, cleaning and validating the data, removing duplicates, and storing the results in a local SQLite database, all exposed via a FastAPI REST API.
-
-## Architecture
-The system uses a modular, provider-agnostic architecture:
-
-```
-User API Request -> LeadGenerationAgent
-                        |
-                        v
-                 BaseLeadProvider (Interface)
-                 /                   \
-        MockLeadProvider     GoogleMapsProvider (Placeholder)
-                 \                   /
-                  v                 v
-                 Data Cleaner & Validator
-                        |
-                        v
-                   LeadService
-                        |
-                        v
-                 SQLite Database
-```
-
-## Tech Stack
-- **Backend Framework:** FastAPI, Uvicorn
-- **Language:** Python 3.11+
-- **Database ORM:** SQLAlchemy, Pydantic
-- **Database:** SQLite
-- **Testing:** pytest
-
-## Installation & Setup
-
-1. **Clone the repository and enter the directory:**
-   ```bash
-   cd sales-agent
-   ```
-
-2. **Create a virtual environment:**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Environment Variables:**
-   Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-   (The defaults use a local SQLite database: `sqlite:///./sales_agent.db`)
-
-## Running the Application
-
-Run the server using the provided script:
-```bash
-python run.py
-```
-Or directly with Uvicorn:
-```bash
-uvicorn app.main:app --reload
-```
-
-The API docs will be available at: [http://localhost:8000/docs](http://localhost:8000/docs)
-
-## API Endpoints & Examples
-
-### 1. Generate Leads
-**POST** `/api/leads/generate`
-
-*Request:*
-```json
-{
-    "industry": "Dental Clinics",
-    "location": "Mumbai",
-    "max_results": 10,
-    "provider": "mock"
-}
-```
-
-*Response:*
-```json
-{
-    "success": true,
-    "total_found": 10,
-    "new_leads": 10,
-    "duplicates": 0,
-    "leads": [
-        {
-            "company_name": "Bright Smiles Dental Clinic",
-            "industry": "Dental Clinics",
-            ...
-        }
-    ]
-}
-```
-
-### 2. Get Leads
-**GET** `/api/leads`
-(Supports optional query params: `industry`, `location`, `status`, `skip`, `limit`)
-
-### 3. Get Lead by ID
-**GET** `/api/leads/{lead_id}`
-
-### 4. Delete Lead
-**DELETE** `/api/leads/{lead_id}`
-
-## Running Tests
-
-The test suite covers data cleaning, data validation, mock provider logic, duplicate detection, and the API endpoints.
-
-```bash
-pytest tests/
-```
-
-## Current Limitations
-- **No real web scraping yet:** The `GoogleMapsProvider` is currently a placeholder (returns 501 Not Implemented). The `MockLeadProvider` is fully functional and should be used to test the pipeline.
-- **Single Agent:** Only the `LeadGenerationAgent` is implemented.
-
-## Team Assignments & Workflow
-
-To ensure smooth orchestration and avoid merge conflicts, we have divided the responsibilities and set up a dedicated Git branching strategy for the team: **Shubham**, **Lavanya**, and **Akshat**.
-
-### 1. Shubham
-**Role:** Lead AI & Pipeline Developer
-**Branch:** `shubham-dev`
-**What Shubham has done till now:**
-- Architected the foundational Lead Generation pipeline.
-- Built the initial Web Discovery Agent and AI Lead Research Pipeline (including source validation and heuristic scoring).
-- Implemented the FastAPI backend, MockLeadProvider, local SQLite database integration, and test suites.
-- Set up the project structure and initial repository orchestration.
-
-**Shubham's Git Commands:**
-```bash
-# Pull latest changes from your branch
-git checkout shubham-dev
-git pull origin shubham-dev
-
-# Push your work
-git add .
-git commit -m "Your commit message"
-git push origin shubham-dev
-```
-
-### 2. Lavanya
-**Role:** Communications & Outreach Developer
-**Branch:** `lavanya-dev`
-**What Lavanya has to do:**
-- Implement the Multi-Channel Sales Automation (Email, WhatsApp, Instagram DM, Telegram).
-- Develop the Email Agent to draft personalized outreach based on scraped data.
-- Build the Follow-up Agent to handle responses, scheduling, and tracking open rates.
-- Ensure API credentials and connectivity for communication channels are securely managed.
-
-**Lavanya's Git Commands:**
-```bash
-# First time fetching the branch
-git fetch origin
-git checkout lavanya-dev
-
-# Daily workflow to pull latest changes
-git pull origin lavanya-dev
-
-# Push your work
-git add .
-git commit -m "Lavanya: added email agent functionality"
-git push origin lavanya-dev
-```
-
-### 3. Akshat
-**Role:** Orchestrator & Scoring Developer
-**Branch:** `akshat-dev`
-**What Akshat has to do:**
-- Develop the **Orchestrator Agent** to manage the flow and state between all the different agents (Discovery -> Scoring -> Outreach).
-- Build the Lead Scoring Agent to analyze and rank leads based on the data provided by Shubham's research pipeline.
-- Work on database scalability and ensuring that the structured Company Profiles are correctly passed between agents.
-
-**Akshat's Git Commands:**
-```bash
-# First time fetching the branch
-git fetch origin
-git checkout akshat-dev
-
-# Daily workflow to pull latest changes
-git pull origin akshat-dev
-
-# Push your work
-git add .
-git commit -m "Akshat: implemented basic orchestrator logic"
-git push origin akshat-dev
-```
-
-## General Git Guidelines for the Team
-- **DO NOT** push directly to the `main` branch. 
-- Always work on your assigned branch (`shubham-dev`, `lavanya-dev`, `akshat-dev`).
-- When your feature is complete and tested, we will create a Pull Request (PR) to merge your branch into `main`.
-- If you need code from someone else's branch, ask them to push it, and then you can merge their branch into yours locally using `git merge origin/<their-branch-name>`.
+A full-stack AI-powered CRM system that autonomously finds leads, researches them via web scraping, scores them with LLMs, and executes multi-channel outreach (Email, WhatsApp, Call, Instagram DM, Telegram).
 
 ---
-*Project Repository: [Dynamic_CRM_Sales_Agents_Orchestration](https://github.com/Shubham231005/Dynamic_CRM_Sales_Agents_Orchestration)*
+
+## 🗂 Project Structure
+
+```
+Dynamic_CRM_Sales_Agents_Orchestration/
+├── sales-agent/          # Python FastAPI backend
+│   ├── app/
+│   │   ├── agents/       # AI agents (lead gen, scoring, enrichment, etc.)
+│   │   ├── api/routes/   # FastAPI route handlers
+│   │   ├── database/     # SQLAlchemy models & DB setup
+│   │   ├── providers/    # Lead sources (Google Maps scraper, Mock)
+│   │   ├── schemas/      # Pydantic schemas
+│   │   ├── services/     # Business logic services
+│   │   └── utils/        # Cleaners, validators
+│   ├── .env              # YOU MUST CREATE THIS (see below)
+│   ├── requirements.txt
+│   └── run.py
+└── frontend/             # React + Vite frontend
+    ├── src/
+    │   ├── App.jsx
+    │   ├── api.js
+    │   └── index.css
+    └── package.json
+```
+
+---
+
+## ⚙️ Prerequisites
+
+| Tool | Version | Install |
+|------|---------|---------|
+| Python | 3.10+ | https://python.org |
+| Node.js | 18+ | https://nodejs.org |
+| Git | any | https://git-scm.com |
+
+---
+
+## 🚀 Setup & Run (Step by Step)
+
+### Step 1 — Clone the repository
+
+```bash
+git clone https://github.com/Shubham231005/Dynamic_CRM_Sales_Agents_Orchestration.git
+cd Dynamic_CRM_Sales_Agents_Orchestration
+```
+
+---
+
+### Step 2 — Set up the Backend
+
+```bash
+cd sales-agent
+```
+
+#### 2a. Create a virtual environment
+
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# Mac / Linux
+python3 -m venv venv
+source venv/bin/activate
+```
+
+#### 2b. Install Python dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+#### 2c. Install Playwright browsers (needed for Google Maps lead scraping)
+
+```bash
+playwright install chromium
+```
+
+#### 2d. Create the `.env` file
+
+Create a file called `.env` inside the `sales-agent/` folder:
+
+```env
+APP_ENV=development
+DATABASE_URL=sqlite:///./sales_agent.db
+LOG_LEVEL=INFO
+
+# Required for AI scoring (free key at https://console.groq.com)
+GROQ_API_KEY=your_groq_api_key_here
+
+# Optional — Email outreach
+EMAIL_ADDRESS=your_gmail@gmail.com
+EMAIL_PASSWORD=your_16_digit_app_password
+
+# Optional — WhatsApp / Call outreach (Twilio)
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=your_twilio_token
+TWILIO_PHONE_NUMBER=+1xxxxxxxxxx
+
+# Optional — AI calling (Bland.ai)
+BLAND_API_KEY=your_bland_api_key
+
+# Optional — Instagram DM outreach
+INSTAGRAM_USERNAME=your_instagram_username
+INSTAGRAM_PASSWORD=your_instagram_password
+
+# Optional — Telegram outreach
+TELEGRAM_BOT_TOKEN=your_bot_token_from_botfather
+TELEGRAM_CHAT_ID=your_chat_id
+```
+
+> **Only `GROQ_API_KEY` is required** for the core scoring feature.
+> Get a free key at: https://console.groq.com → Sign up → API Keys → Create
+
+#### 2e. Initialize the database
+
+The database (`sales_agent.db`) is created automatically on first run. If you get errors about missing columns after pulling a newer version, run this one-time migration:
+
+```bash
+python -c "
+import sqlite3
+conn = sqlite3.connect('sales_agent.db')
+cur = conn.cursor()
+migrations = [
+    'ALTER TABLE evidence ADD COLUMN classification TEXT',
+    'ALTER TABLE company_profiles ADD COLUMN annual_revenue REAL',
+    'ALTER TABLE company_profiles ADD COLUMN profit_margin_pct REAL',
+    'ALTER TABLE company_profiles ADD COLUMN debt_to_equity_ratio REAL',
+    'ALTER TABLE company_profiles ADD COLUMN revenue_growth_yoy REAL',
+    'ALTER TABLE company_profiles ADD COLUMN financial_health_score REAL',
+]
+for sql in migrations:
+    try:
+        cur.execute(sql)
+        print('OK:', sql)
+    except Exception as e:
+        print('Skip:', e)
+conn.commit()
+conn.close()
+print('Migration complete!')
+"
+```
+
+#### 2f. Start the backend server
+
+```bash
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+- Backend API: **http://127.0.0.1:8000**
+- Interactive API docs: **http://127.0.0.1:8000/docs**
+
+---
+
+### Step 3 — Set up the Frontend
+
+Open a **new terminal** (keep the backend running in the first terminal):
+
+```bash
+# From project root
+cd frontend
+
+npm install
+
+npm run dev
+```
+
+- Frontend UI: **http://localhost:5173**
+
+---
+
+## 🧠 How to Use
+
+### 1. Find Leads
+1. Open **http://localhost:5173** in your browser
+2. Go to the **"Find Leads"** tab
+3. Enter a **Target Industry** (e.g. `Dental Clinics`) and **Target Location** (e.g. `Mumbai`)
+4. Click **"Find Quality Leads"**
+5. A real browser will open and scrape Google Maps for businesses matching your query
+6. Leads are stored automatically in the database
+
+### 2. View & Score Leads
+1. Switch to the **"My Leads"** tab
+2. All stored leads are shown automatically
+3. Unscored leads are **automatically scored by AI** in the background — no button needed
+4. Each lead shows a **fit score (0–100%)** and an **AI analysis**
+
+### 3. Execute Outreach
+1. On any lead card, click the outreach channel you want: **Call**, **WhatsApp**, **Email**, **Insta DM**, or **Telegram**
+2. The AI agent will execute the outreach using your credentials from Settings
+3. First-time: Go to **Settings** tab and add your credentials
+
+---
+
+## 🔑 Key API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/leads/generate` | Find & store leads (provider: `google_maps` or `mock`) |
+| `GET` | `/api/leads` | List all leads from database |
+| `POST` | `/api/strategy/orchestrate-batch` | Batch auto-score multiple leads |
+| `POST` | `/api/strategy/leads/{id}/strategize` | Score a single lead |
+| `POST` | `/api/outreach/execute/{id}/{channel}` | Execute outreach (email/call/whatsapp/instagram/telegram) |
+| `GET` | `/api/settings` | Get saved credentials |
+| `POST` | `/api/settings` | Save/update credentials |
+
+---
+
+## 🛠 Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| Leads not showing in UI | Run the DB migration script in Step 2e |
+| AI scoring fails / no score shown | Make sure `GROQ_API_KEY` is set correctly in `sales-agent/.env` |
+| Google Maps scraping doesn't work | Run `playwright install chromium` |
+| CORS errors in browser console | Ensure backend is running on port **8000** |
+| `npm install` fails | Install Node.js 18 or higher |
+| Port 8000 already in use | Kill the process using it or change the port in the uvicorn command |
+
+---
+
+## 📦 Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Backend API | Python 3.10+, FastAPI, Uvicorn |
+| Database | SQLite via SQLAlchemy ORM |
+| AI / LLM | Groq API (Llama 3.3 70B), Google Gemini |
+| Lead Scraping | Playwright (headless Chromium) |
+| Frontend | React 18, Vite, Lucide Icons |
+| Email Outreach | Python SMTP (Gmail App Password) |
+| Call/SMS/WhatsApp | Twilio API |
+| AI Calling | Bland.ai |
+| Instagram DM | Playwright automation |
+| Telegram | Telegram Bot API |
+
+---
+
+## 📄 License
+
+MIT — free to use, modify, and distribute.

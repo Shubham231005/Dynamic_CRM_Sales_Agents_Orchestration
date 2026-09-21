@@ -3,7 +3,11 @@ import { api } from './api';
 import { Search, User, MessageCircle, Phone, Instagram, Send, Bell, UserPlus, Inbox, Settings, Paperclip } from 'lucide-react';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('generate'); // generate, leads, inbox
+  const [activeTab, setActiveTab] = useState('generate');
+  const [generatedLeads, setGeneratedLeads] = useState([]);
+  const [scoringInProgress, setScoringInProgress] = useState(false);
+  const [scoringStatus, setScoringStatus] = useState(''); // e.g. 'Scoring 5 leads...'
+
   
   // States
   const [industry, setIndustry] = useState('');
@@ -13,7 +17,7 @@ function App() {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
-  
+
   // Settings State
   const [settings, setSettings] = useState({
     email_address: '', email_password: '',
@@ -38,11 +42,48 @@ function App() {
     setLoading(true);
     try {
       const res = await api.getLeads();
-      setLeads(res || []);
+      if (Array.isArray(res)) {
+        setLeads(res);
+        // Auto-score any leads that don't have a score yet
+        const unscored = res.filter(l => !l.strategic_fit);
+        if (unscored.length > 0) {
+          autoScoreLeads(unscored.map(l => l.id));
+        }
+      } else if (res && res.detail) {
+        console.error('API error fetching leads:', res.detail);
+        alert(`Error loading leads: ${res.detail}`);
+        setLeads([]);
+      } else {
+        console.error('Unexpected response from leads API:', res);
+        setLeads([]);
+      }
     } catch (e) {
-      console.error(e);
+      console.error('fetchLeads network error:', e);
+      alert(`Network error loading leads: ${e.message}`);
+      setLeads([]);
     }
     setLoading(false);
+  };
+
+  const autoScoreLeads = async (leadIds) => {
+    if (!leadIds || leadIds.length === 0) return;
+    setScoringInProgress(true);
+    setScoringStatus(`🤖 AI is scoring ${leadIds.length} lead${leadIds.length > 1 ? 's' : ''}...`);
+    try {
+      await api.orchestrateBatch(leadIds, salesContext);
+      // Re-fetch to get updated scores
+      const res = await api.getLeads();
+      if (Array.isArray(res)) {
+        setLeads(res);
+      }
+      setScoringStatus(`✅ Scoring complete!`);
+      setTimeout(() => setScoringStatus(''), 3000);
+    } catch (e) {
+      console.error('Auto-scoring error:', e);
+      setScoringStatus('⚠️ Scoring failed (check GROQ_API_KEY in .env)');
+      setTimeout(() => setScoringStatus(''), 5000);
+    }
+    setScoringInProgress(false);
   };
 
   const fetchSettings = async () => {
@@ -74,13 +115,23 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ industry: searchIndustry, location: searchLocation, max_results: 10, provider: 'google_maps' })
       });
+      
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        alert(`Server error ${res.status}: ${errData.detail || res.statusText}`);
+        setLoading(false);
+        return;
+      }
+      
       const data = await res.json();
-      if (data.success && data.total_found > 0) {
-        alert(`Agents found ${data.total_found} leads!`);
+      if (data.success) {
+        alert(`✅ Done! Found ${data.total_found} leads (${data.new_leads} new, ${data.duplicates} duplicates).`);
+        // Switch to leads tab and refresh from DB
         setActiveTab('leads');
+        // Always explicitly fetch so the list refreshes
+        await fetchLeads();
       } else {
-        alert(`No new leads found (found ${data.total_found || 0} total, ${data.duplicates || 0} duplicates).`);
-        setActiveTab('leads');
+        alert(`Error: ${data.detail || 'Unknown error from server'}`);
       }
     } catch (e) {
       alert("Error finding leads: " + e.message);
@@ -256,11 +307,35 @@ function App() {
         {/* TAB 2: MY LEADS */}
         {activeTab === 'leads' && (
           <div className="fade-in">
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Leads Found by Agents</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <div>
+                <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Leads Found by Agents</h2>
+                {leads.length > 0 && <p style={{ margin: '0.15rem 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{leads.length} lead{leads.length !== 1 ? 's' : ''} in database</p>}
+              </div>
+              <button className="outline" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }} onClick={fetchLeads} disabled={loading}>
+                {loading ? <span className="loader"></span> : '↻ Refresh'}
+              </button>
+            </div>
+            {/* Scoring status banner */}
+            {scoringStatus && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '0.6rem',
+                padding: '0.6rem 1rem', marginBottom: '1rem',
+                backgroundColor: scoringInProgress ? 'rgba(99,102,241,0.15)' : 'rgba(16,185,129,0.15)',
+                border: `1px solid ${scoringInProgress ? 'rgba(99,102,241,0.4)' : 'rgba(16,185,129,0.4)'}`,
+                borderRadius: '0.5rem', fontSize: '0.85rem', color: '#e2e8f0'
+              }}>
+                {scoringInProgress && <span className="loader" style={{ width: '14px', height: '14px', borderWidth: '2px' }}></span>}
+                {scoringStatus}
+              </div>
+            )}
             {loading ? (
               <div style={{ textAlign: 'center', padding: '2rem' }}><div className="loader"></div></div>
             ) : leads.length === 0 ? (
-              <p className="item-subtitle">No leads yet. Go find some!</p>
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <p className="item-subtitle">No leads in database yet.</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>Go to "Find Leads" tab and generate some!</p>
+              </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {leads.map(lead => (
@@ -276,14 +351,15 @@ function App() {
                           <span className="badge success">Score: {Math.round(lead.strategic_fit.fit_score * 100)}%</span>
                         </div>
                       ) : (
-                        <button 
-                          className="outline" 
-                          style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
-                          onClick={() => handleStrategizeLead(lead.id)}
-                          disabled={actionLoading === `strategize-${lead.id}`}
-                        >
-                          {actionLoading === `strategize-${lead.id}` ? 'Scoring...' : 'Get Score Card'}
-                        </button>
+                        <span style={{
+                          fontSize: '0.7rem', padding: '0.2rem 0.5rem',
+                          backgroundColor: 'rgba(99,102,241,0.15)',
+                          border: '1px solid rgba(99,102,241,0.3)',
+                          borderRadius: '999px', color: '#a5b4fc',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {scoringInProgress ? '🤖 Scoring...' : 'Pending score'}
+                        </span>
                       )}
                     </div>
                     

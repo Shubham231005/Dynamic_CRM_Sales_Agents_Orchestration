@@ -1,12 +1,76 @@
 Traceback (most recent call last):
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\networks.py", line 966, in import_email_validator
+    import email_validator
+ModuleNotFoundError: No module named 'email_validator'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
   File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\sales-agent\run.py", line 13, in <module>
     import app.main
   File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\sales-agent\app\main.py", line 6, in <module>
     from app.api.routes import leads, strategy, settings, outreach
-  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\sales-agent\app\api\routes\strategy.py", line 12, in <module>
-    from app.orchestrators.sales_orchestrator import SalesOrchestrator
-  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\sales-agent\app\orchestrators\__init__.py", line 1, in <module>
-    from .sales_orchestrator import SalesOrchestrator
-  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\sales-agent\app\orchestrators\sales_orchestrator.py", line 4, in <module>
-    from app.agents.lead_scoring_agent import LeadScoringAgent
-ImportError: cannot import name 'LeadScoringAgent' from 'app.agents.lead_scoring_agent' (C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\sales-agent\app\agents\lead_scoring_agent.py)
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\sales-agent\app\api\routes\leads.py", line 5, in <module>
+    from app.schemas.lead import LeadGenerateRequest, LeadGenerateResponse, LeadResponse
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\sales-agent\app\schemas\lead.py", line 19, in <module>
+    class LeadBase(BaseModel):
+    ...<30 lines>...
+        enrichment_status: str = "NOT_STARTED"
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_model_construction.py", line 256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_model_construction.py", line 667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_generate_schema.py", line 744, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_generate_schema.py", line 1038, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_generate_schema.py", line 868, in _model_schema
+    {k: self._generate_md_field_schema(k, v, decorators) for k, v in fields.items()},
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_generate_schema.py", line 1245, in _generate_md_field_schema
+    schema, metadata = self._common_field_schema(name, field_info, decorators)
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_generate_schema.py", line 1299, in _common_field_schema
+    schema = self._apply_annotations(
+        source_type,
+        annotations + validators_from_decorators,
+    )
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_generate_schema.py", line 2252, in _apply_annotations
+    schema = get_inner_schema(source_type)
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_schema_generation_shared.py", line 83, in __call__
+    schema = self._handler(source_type)
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_generate_schema.py", line 2231, in inner_handler
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_generate_schema.py", line 1043, in _generate_schema_inner
+    return self.match_type(obj)
+           ~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_generate_schema.py", line 1161, in match_type
+    return self._match_generic_type(obj, origin)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_generate_schema.py", line 1184, in _match_generic_type
+    return self._union_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_generate_schema.py", line 1344, in _union_schema
+    choices.append(self.generate_schema(arg))
+                   ~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_generate_schema.py", line 741, in generate_schema
+    schema = self._generate_schema_from_get_schema_method(obj, obj)
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\_internal\_generate_schema.py", line 931, in _generate_schema_from_get_schema_method
+    schema = get_schema(
+        source, CallbackGetCoreSchemaHandler(self._generate_schema_inner, self, ref_mode=ref_mode)
+    )
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\networks.py", line 1006, in __get_pydantic_core_schema__
+    import_email_validator()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\aksha\Downloads\majorproject\Dynamic_CRM_Sales_Agents_Orchestration\venv\Lib\site-packages\pydantic\networks.py", line 968, in import_email_validator
+    raise ImportError("email-validator is not installed, run `pip install 'pydantic[email]'`") from e
+ImportError: email-validator is not installed, run `pip install 'pydantic[email]'`

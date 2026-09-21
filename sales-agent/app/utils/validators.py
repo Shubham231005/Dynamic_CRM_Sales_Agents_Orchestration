@@ -1,6 +1,8 @@
 from typing import Dict, Any
 from app.schemas.lead import LeadCreate
 from pydantic import ValidationError
+import logging
+logger = logging.getLogger(__name__)
 
 def validate_lead_data(data: Dict[str, Any]) -> LeadCreate | None:
     """

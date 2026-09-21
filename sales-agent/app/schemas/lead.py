@@ -23,7 +23,7 @@ class LeadBase(BaseModel):
     address: Optional[str] = None
     phone: Optional[str] = None
     email: Optional[EmailStr] = None
-    website: Optional[HttpUrl] = None
+    website: Optional[str] = None
     google_rating: Optional[float] = Field(None, ge=0, le=5)
     social_links: Optional[str] = None
     description: Optional[str] = None
@@ -112,6 +112,7 @@ class LeadGenerateResponse(BaseModel):
     new_leads: int
     duplicates: int
     leads: List[LeadResponse]
+    validation_warnings: int = 0  # number of leads dropped by validation
 
 class LeadDiscoverBatchRequest(BaseModel):
     lead_ids: List[int]

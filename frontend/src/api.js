@@ -3,7 +3,7 @@ const API_BASE = `http://${window.location.hostname}:8000/api`;
 export const api = {
   // Leads
   getLeads: async () => {
-    const res = await fetch(`${API_BASE}/leads?limit=10`);
+    const res = await fetch(`${API_BASE}/leads?limit=200`);
     return res.json();
   },
   
@@ -13,6 +13,15 @@ export const api = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sales_context: salesContext })
+    });
+    return res.json();
+  },
+
+  orchestrateBatch: async (leadIds, salesContext = "") => {
+    const res = await fetch(`${API_BASE}/strategy/orchestrate-batch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lead_ids: leadIds, sales_context: salesContext })
     });
     return res.json();
   },

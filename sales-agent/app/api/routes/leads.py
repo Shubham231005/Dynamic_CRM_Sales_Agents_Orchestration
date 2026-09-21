@@ -22,13 +22,17 @@ async def generate_leads(request: LeadGenerateRequest, db: Session = Depends(get
             max_results=request.max_results,
             provider_name=request.provider
         )
+        # Calculate how many leads were discarded due to validation failures
+        validation_warnings = total_found - (new_leads + duplicates)
+
         
         return LeadGenerateResponse(
             success=True,
             total_found=total_found,
             new_leads=new_leads,
             duplicates=duplicates,
-            leads=leads
+            leads=leads,
+            validation_warnings=validation_warnings,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -52,9 +56,23 @@ def get_leads(
     limit: int = Query(100, ge=1, le=1000),
     db: Session = Depends(get_db)
 ):
-    service = LeadService(db)
-    leads = service.get_leads(skip=skip, limit=limit, industry=industry, location=location, status=status)
-    return leads
+    try:
+        service = LeadService(db)
+        leads = service.get_leads(skip=skip, limit=limit, industry=industry, location=location, status=status)
+        logger.info(f"get_leads: fetched {len(leads)} leads from DB")
+        # Manually validate each lead so serialization errors are logged rather than crashing
+        result = []
+        for lead in leads:
+            try:
+                result.append(LeadResponse.model_validate(lead))
+            except Exception as e:
+                logger.error(f"Serialization error for lead id={lead.id} ({lead.company_name}): {e}")
+        return result
+    except Exception as e:
+        import traceback
+        logger.error(f"get_leads error: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch leads: {str(e)}")
+
 
 @router.get("/{lead_id}", response_model=LeadResponse)
 def get_lead(lead_id: int, db: Session = Depends(get_db)):
